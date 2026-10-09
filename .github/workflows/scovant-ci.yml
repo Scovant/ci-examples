@@ -1,0 +1,33 @@
+# Trigger a Scovant agent-readiness scan after every production deploy.
+#
+# Secrets to configure in your repo:
+#   SCOVANT_TOKEN   - API token from Settings -> API tokens (scvt_...)
+#   SCOVANT_SITE_ID - your site's UUID
+name: Scovant agent-readiness CI
+
+on:
+  push:
+    branches: [main]
+  # or: workflow_run / deployment_status, after your deploy job
+
+jobs:
+  scovant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Scovant scan
+        env:
+          SCOVANT_TOKEN: ${{ secrets.SCOVANT_TOKEN }}
+          SCOVANT_SITE_ID: ${{ secrets.SCOVANT_SITE_ID }}
+          ENVIRONMENT: production
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          curl -fsS -X POST "https://scovant.com/api/ci/trigger" \
+            -H "Authorization: Bearer ${SCOVANT_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -H "Idempotency-Key: ${COMMIT_SHA}-${ENVIRONMENT}" \
+            -d "{\"site_id\":\"${SCOVANT_SITE_ID}\",\"environment\":\"${ENVIRONMENT}\",\"branch\":\"${BRANCH}\",\"commit_sha\":\"${COMMIT_SHA}\"}"
+
+      # Regressions are pushed to your configured webhooks: `ci.completed`
+      # fires on every compared run, `regressions.detected` only when a score
+      # or simulation outcome dropped vs the baseline.
