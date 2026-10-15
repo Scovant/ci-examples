@@ -1,0 +1,35 @@
+# Free tier: gate a deploy on the open-source Scovant Core scanner.
+#
+# Runs entirely inside your workflow — no account, no token, no data leaves the
+# runner except the HTTP requests the scanner makes to the URL you name. The
+# step fails when the Technical Readiness rating drops below `min-core-score`
+# (or has no number) or a check FAILs.
+#
+# Pin `@v0.20.1` instead of the moving `@v0` for an exact, never-moving version.
+name: Scovant Core gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  core-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Scovant/scovant-core@v0
+        id: scan
+        with:
+          url: https://staging.example.com
+          min-core-score: '70'
+          fail-on: fail
+          # Scanning your own not-yet-public staging host on a private runner:
+          # both flags are required together; never honoured for fork PRs.
+          allow-private-networks: 'true'
+          trusted-target: 'true'
+
+      - name: Show the result
+        if: always()
+        run: echo "Technical Readiness ${{ steps.scan.outputs.score }} (${{ steps.scan.outputs.grade }}) · model ${{ steps.scan.outputs.model_id }}"
+      # The full HTML report is uploaded as the workflow artifact
+      # `scovant-core-report`; a Markdown summary lands in the Step Summary.
