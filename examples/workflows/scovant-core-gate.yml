@@ -5,7 +5,7 @@
 # step fails when the Technical Readiness rating drops below `min-core-score`
 # (or has no number) or a check FAILs.
 #
-# Pin `@v0.22.0` instead of the moving `@v0` for an exact, never-moving version.
+# Pin `@v0.23.0` instead of the moving `@v0` for an exact, never-moving version.
 name: Scovant Core gate
 
 on:
