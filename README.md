@@ -36,7 +36,7 @@ through a checkout, or compare deploys against a baseline. That is the paid tier
 
 Scovant Cloud crawls the site, scores it against the full
 [rule catalog](https://scovant.com/rules), runs **real AI agents** (a multi-model
-catalog of fifteen LLM agents) through purchase and booking flows, and compares every
+catalog of seventeen LLM agents) through purchase and booking flows, and compares every
 CI run against the environment's baseline — regressions arrive as webhooks.
 
 - [`examples/trigger-scan.sh`](examples/trigger-scan.sh) — trigger a scan + simulation
